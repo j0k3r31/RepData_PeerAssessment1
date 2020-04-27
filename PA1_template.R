@@ -1,45 +1,31 @@
 
-# Reproducible Research:  Assessment 1
-
-## Loading and preprocessing the data
-```{r loaddata}
-data <- read.csv("activity.csv")
-```
-
-## What is mean total number of steps taken per day?
-```{r}
 library(ggplot2)
+
+
+
+data <- read.csv("activity.csv")
+
+
+
 totalSteps <- tapply(data$steps, data$date, FUN=sum, na.rm=TRUE)
 qplot(totalSteps, binwidth=1000, xlab="total number of steps taken each day")
 mean(totalSteps, na.rm=TRUE)
 median(totalSteps, na.rm=TRUE)
-```
 
 
-## What is the average daily activity pattern?
-```{r}
-library(ggplot2)
 average <- aggregate(x=list(steps=data$steps), by=list(interval=data$interval),
                       FUN=mean, na.rm=TRUE)
 ggplot(data=average, aes(x=interval, y=steps)) +
   geom_line() +
   xlab("5-minute interval") +
   ylab("average number of steps taken")
-```
 
-```{r}
+
 average[which.max(average$steps),]
-```
 
 
-## Imputing missing values
-```{r how_many_missing}
 missing <- is.na(data$steps)
 table(missing)
-```
-
-```{r}
-# Replace each missing value with the mean value of its 5-minute interval
 filled.value<- function(steps, interval) {
   filled <- NA
   if (!is.na(steps))
@@ -50,18 +36,15 @@ filled.value<- function(steps, interval) {
 }
 filled.data <- data
 filled.data$steps <- mapply(filled.value , filled.data$steps, filled.data$interval)
-```
 
-```{r}
+
+
 total.steps <- tapply(filled.data$steps, filled.data$date, FUN=sum)
 qplot(total.steps, binwidth=1000, xlab="total number of steps taken each day")
 mean(total.steps)
 median(total.steps)
-```
 
 
-## Are there differences in activity patterns between weekdays and weekends?
-```{r}
 weekdayweekend <- function(date) {
   day <- weekdays(date)
   if (day %in% c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
@@ -73,10 +56,8 @@ weekdayweekend <- function(date) {
 }
 filled.data$date <- as.Date(filled.data$date)
 filled.data$day <- sapply(filled.data$date, FUN=weekdayweekend)
-```
 
-```{r}
 average <- aggregate(steps ~ interval + day, data=filled.data, mean)
 ggplot(average, aes(interval, steps)) + geom_line() + facet_grid(day ~ .) +
   xlab("5-minute interval") + ylab("Number of steps")
-```
+
